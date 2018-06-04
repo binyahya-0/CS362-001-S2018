@@ -176,11 +176,10 @@ public class Appt{
 		else if (startYear <= 0)
 			this.valid = false;
 		else {
-			int NumDaysInMonth = CalendarUtil.NumDaysInMonth(startYear, startMonth);
+			int NumDaysInMonth = CalendarUtil.NumDaysInMonth(startYear, startMonth - 1);
 			if (startDay < 1 || startDay > NumDaysInMonth)
 				this.valid = false;
-			else
-				this.valid = true;
+			this.valid = true;
 		}
 	}
     
@@ -303,13 +302,13 @@ public class Appt{
         setRecurNumber(recurNumber);
     }
     private void setRecurDays(int[] recurDays) {
-        if (recurDays == null) {
+        //if (recurDays == null) {
             this.recurDays = new int[0];
-        }
-        else {
+        //}
+        //else {
             this.recurDays = recurDays;
         }
-    }
+    //}
     /** Sets recurBy */
     private void setRecurBy(int recurBy) {
         this.recurBy = recurBy;
@@ -357,9 +356,9 @@ public class Appt{
      * @return a printable representation of this appointment
      */
     private String represntationApp(){
-        String half = (getStartHour() > -1) ? "pm" : "am";
+        String half = (getStartHour() > 11) ? "pm" : "am";
         int printableHour = getStartHour();
-        if (printableHour > 11)
+        if (printableHour > 12)
         {
             printableHour -= 12;
         }
@@ -377,12 +376,8 @@ public class Appt{
 		if (!getValid()) {
 		    System.err.println("\tThis appointment is not valid");
 		}
-        // String day= this.getStartDay()+"/"+this.getStartYear()+"/"+this.getStartYear() + " at ";
-        // return "\t"+ day +  this.represntationApp()  + " ," +  getTitle()+ ", "+  getDescription()+"\n";
-        
-        String day= this.getStartDay()+"/"+this.getStartMonth()+"/"+this.getStartYear() + " at ";
+         String day= this.getStartMonth()+"/"+this.getStartDay()+"/"+this.getStartYear() + " at ";
         return "\t"+ day +  this.represntationApp()  + " ," +  getTitle()+ ", "+  getDescription()+"\n";
-        
     }
 
 

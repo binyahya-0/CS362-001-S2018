@@ -64,7 +64,7 @@ public class CalDay {
 	
 		setAppts(new LinkedList<Appt>());
 	
-		valid = true; // removed bug
+		valid = true;
 	}
 	
 	/**
@@ -73,11 +73,11 @@ public class CalDay {
 	 * the appointment actually occurs on this day. This is so the recurring
 	 * appointments can be added. The appointment can also be added twice.
 	 */
-	public void addAppt(Appt appt) { 
+	public void addAppt(Appt appt) {
 		if (appt.getValid()) {
 			for (int i = 0; i < getAppts().size(); i++) {
 				//Put the appointment in the correct order - finish this
-				if (((Appt)getAppts().get(i)).getStartHour() < // bug introduced here
+				if (((Appt)getAppts().get(i)).getStartHour() >
 										appt.getStartHour()) {
 					
 					getAppts().add(i, appt);
@@ -238,7 +238,7 @@ public class CalDay {
 				
 				//add preceding zero to minutes less than 10
 				minute = appointment.getStartMinute();
-				if(minute < 10){
+				if(minute == 10){
 					minString = new String("0" + Integer.toString(minute));
 				}
 				else{

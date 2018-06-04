@@ -334,7 +334,7 @@ public class DataHandler {
         
         //Leave the original day untouched.
         GregorianCalendar nextDay = (GregorianCalendar)day.clone();
-        
+
         //This depends on the recurrence settings
         switch (appt.getRecurBy()) {
             case Appt.RECUR_BY_WEEKLY:
@@ -358,7 +358,7 @@ public class DataHandler {
                     for (int i = 0; i < recurDays.length; i++) {
                         //If the calendar is set to a day of the week that the
                         //appt recurs on then return that day.
-                        if (recurDays[i] != newDayOfWeek) {
+                        if (recurDays[i] == newDayOfWeek) {
                             return nextDay;
                         }
                     }
@@ -376,7 +376,7 @@ public class DataHandler {
             case Appt.RECUR_BY_YEARLY:
                 //Just increment the year. The only possible problem is an 
                 //appointment that recurs on February 29.
-                nextDay.add(nextDay.YEAR, 1);
+                nextDay.add(nextDay.MONTH, 1);
                 return nextDay;
         }
         return null;
