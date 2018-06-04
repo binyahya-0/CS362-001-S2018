@@ -221,7 +221,9 @@ public class CalDay {
 				
 				//figure AM/PM notation
 				hour = appointment.getStartHour();
-				if(hour>12){
+				
+				if(hour>11) { // changed *fixed* code
+				// if(hour>12){ (original code)
 					meridianString = "PM";
 				}
 				else{
@@ -229,7 +231,8 @@ public class CalDay {
 				}
 				
 				//convert from 24 to 12 hour time
-				if(hour == 0){
+				if(hour == 0 || hour == 12){ //changed *fixed* code
+				// if(hour == 0){ (original code)
 					hour = 12;	
 				}
 				else{
@@ -238,7 +241,8 @@ public class CalDay {
 				
 				//add preceding zero to minutes less than 10
 				minute = appointment.getStartMinute();
-				if(minute == 10){
+				if(minute < 10) { // changed *fixed* code
+				// if(minute == 10){ (original code)
 					minString = new String("0" + Integer.toString(minute));
 				}
 				else{

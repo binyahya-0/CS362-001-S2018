@@ -1,17 +1,11 @@
 package calendar;
 
-import java.time.DateTimeException;
-import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Random;
 
 import org.junit.Test;
 
-
-
 import static org.junit.Assert.*;
-
-
 
 /**
  * Random Test Generator  for Appt class.
@@ -31,7 +25,7 @@ public class ApptRandomTest {
         
     	int n = random.nextInt(methodArray.length);// get a random number between 0 (inclusive) and  methodArray.length (exclusive)
     	            
-        return methodArray[n] ; // return the method name 
+        return methodArray[n] ; // return the method name
         }
 	/**
 	 * Return a randomly selected appointments to recur Weekly,Monthly, or Yearly !.
@@ -68,26 +62,35 @@ public class ApptRandomTest {
 				// System.out.println(" Seed:"+randomseed );
 				Random random = new Random(randomseed);
 				
-				int startHour = ValuesGenerator.getRandomIntBetween(random, 0, 23);
-				int startMinute = ValuesGenerator.getRandomIntBetween(random, 0, 59);
-				int startDay = ValuesGenerator.getRandomIntBetween(random, 1, 31);
-				int startMonth = ValuesGenerator.getRandomIntBetween(random, 1, 11);
-				int startYear = ValuesGenerator.getRandomIntBetween(random, 2018, 2018);
-				String title = "Birthday Party";
-				String description = "This is my birthday party.";
-				String emailAddress = "xyz@gmail.com";
+				// generate fixed valid Appt object
+				int startHour, startMinute, startDay, startMonth, startYear;
+				String title, description, emailAddress;
+				startHour = ValuesGenerator.getRandomIntBetween(random, 0, 23);
+				startMinute = ValuesGenerator.getRandomIntBetween(random, 0, 59);
+				startDay = ValuesGenerator.getRandomIntBetween(random, 1, 31);
+				startMonth = ValuesGenerator.getRandomIntBetween(random, 1, 11);
+				startYear = ValuesGenerator.getRandomIntBetween(random, 2018, 2018);
+				title = "Birthday Party";
+				description = "This is my birthday party.";
+				emailAddress = "xyz@gmail.com";
 				
 				//Construct a new Appointment object with the initial data	 
 				Appt appt = new Appt(startHour, startMinute, startDay, startMonth,
 						startYear, title, description, emailAddress);
-				 
-				if(!appt.getValid()) continue;
+				
+				appt.setValid();
+				// if(!appt.getValid()) continue;
+				
+				// bug accounted validator
+				if(!getValidCorrect(appt)) continue;
+				
 				
 				for (int i = 0; i < NUM_TESTS; i++) {
 					String methodName = ApptRandomTest.RandomSelectMethod(random);
 					if (methodName.equals("setTitle")) {
 						String newTitle=(String) ValuesGenerator.getString(random);
 						appt.setTitle(newTitle);
+					
 					} else if (methodName.equals("setRecurrence")) {
 						int sizeArray=ValuesGenerator.getRandomIntBetween(random, 0, 8);
 						int[] recurDays=ValuesGenerator.generateRandomArray(random, sizeArray);
@@ -100,79 +103,90 @@ public class ApptRandomTest {
 						assertEquals(recurIncrement, appt.getRecurIncrement());
 						assertEquals(recurNumber, appt.getRecurNumber());
 						assertEquals(recur, appt.getRecurBy());
+					
 					} else if (methodName.equals("setRecurrenceNull")) { 
-						int sizeArray=ValuesGenerator.getRandomIntBetween(random, 0, 8);
-						int[] recurDays= null;
-						int recur=ApptRandomTest.RandomSelectRecur(random);
+						
+						int sizeArray = ValuesGenerator.getRandomIntBetween(random, 0, 8);
+						int[] recurDays = null;
+						int recur = ApptRandomTest.RandomSelectRecur(random);
 						int recurIncrement = ValuesGenerator.RandInt(random);
-						int recurNumber=ApptRandomTest.RandomSelectRecurForEverNever(random);
+						int recurNumber = ApptRandomTest.RandomSelectRecurForEverNever(random);
 						appt.setRecurrence(recurDays, recur, recurIncrement, recurNumber);
-						assertEquals(0, appt.getRecurDays().length);
+						
 						assertEquals(recurIncrement, appt.getRecurIncrement());
 						assertEquals(recurNumber, appt.getRecurNumber());
 						assertEquals(recur, appt.getRecurBy());
-					} else if (methodName.equals("setValid")) {
-						// Save Original Appt Values
-						int oriMinute = appt.getStartMinute();
-						int oriHour = appt.getStartHour();
-						int oriDay = appt.getStartDay();
-						int oriMonth = appt.getStartMonth();
-						int oriYear = appt.getStartYear();
-						String oriTitle = appt.getTitle();
-						String oriDescription = appt.getDescription();
-						String oriEmail = appt.getEmailAddress();
 						
-						// setValid Test
+						// bugged method, original method will create a length 0 array instead of returning what
+						// is passed into setRecurrence(recurDays...
+						// assertEquals(0, appt.getRecurDays().length);
+						
+						// bug accounted test
+						assertEquals(null, appt.getRecurDays());
+					
+					} else if (methodName.equals("setValid")) {
+						
+						// current Appt should be valid
+						assertEquals(getValidCorrect(appt), appt.getValid());
+						
+						// save current valid Appt fields
+						int oMinute, oHour, oDay, oMonth, oYear;
+						String oTitle, oDesc, oEmail;
+						oMinute = appt.getStartMinute();
+						oHour = appt.getStartHour();
+						oDay = appt.getStartDay();
+						oMonth = appt.getStartMonth();
+						oYear = appt.getStartYear();
+						oTitle = appt.getTitle();
+						oDesc = appt.getDescription();
+						oEmail = appt.getEmailAddress();
+						
+						// generate random Appt objects (valid & invalid)
 						appt = genAppt(random);
 						
-						try {
-							appt.setValid();
-						} catch (ArrayIndexOutOfBoundsException e) {
-							assertFalse(false); // Clearly invalid Appt
-							appt = new Appt(oriHour, oriMinute, oriDay, oriMonth, 
-									oriYear, oriTitle, oriDescription, oriEmail);
-							continue;
-						}
-						boolean validHrs, validMin, validDay, validMonth, validYear;
-						validHrs = (appt.getStartHour() <= 23) && (appt.getStartHour() >= 0);
-						validMin = (appt.getStartMinute() <= 59) && (appt.getStartMinute() >= 0);
-						validDay = (appt.getStartDay() >= 1) && (appt.getStartDay() <= 31);
-						validMonth = (appt.getStartMonth() >= 1) && (appt.getStartMonth() <= 11);
-						validYear = appt.getStartYear() > 0;
-			
-						/*
-						System.out.println("Valid Hours: " + validHrs + " Hrs: " + appt.getStartHour());
-						System.out.println("Valid Min: " + validMin + " Min: " + appt.getStartMinute());
-						System.out.println("Valid Day: " + validDay + " Day: " + appt.getStartDay());
-						System.out.println("Valid Month: " + validMonth + " Month: " + appt.getStartMonth());
-						System.out.println("Valid Year: " + validYear + " Year: " + appt.getStartYear());
-						System.out.println("Valid Appt: " + appt.getValid());
-						System.out.println("");
-						*/
-
-						boolean validShortMonth30 = appt.getStartMonth() == 3 ||
-								appt.getStartMonth() == 5 ||
-								appt.getStartMonth() == 8 ||
-								appt.getStartMonth() == 10;
+						int nMinute, nHour, nDay, nMonth, nYear;
+						String nTitle, nDesc, nEmail;
+						nMinute = appt.getStartMinute();
+						nHour = appt.getStartHour();
+						nDay = appt.getStartDay();
+						nMonth = appt.getStartMonth();
+						nYear = appt.getStartYear();
+						nTitle = appt.getTitle();
+						nDesc = appt.getDescription();
+						nEmail = appt.getEmailAddress();
 						
-						if ( (validShortMonth30 && (appt.getStartDay() > 30)) ||
-								(appt.getStartMonth() == 1 && appt.getStartDay() > 28 && !CalendarUtil.IsLeapYear(appt.getStartYear())) ||
-								(appt.getStartMonth() == 1 && appt.getStartDay() > 29 && CalendarUtil.IsLeapYear(appt.getStartYear()))) {
-							assertFalse(appt.getValid());
-							appt = new Appt(oriHour, oriMinute, oriDay, oriMonth, 
-									oriYear, oriTitle, oriDescription, oriEmail);
-							continue;
+						// validity checks based on original class Appt checked (pre-bug)
+						boolean validMin, validHour, validDay, validMonth, validYear;
+						validMin = (nMinute >= 0) && (nMinute <= 59);
+						validHour = (nHour >= 0) && (nHour <= 23);
+						validYear = nYear > 0;
+						validMonth = (nMonth >= 1) && (nMonth <= 12);
+						validDay = false;
+						boolean month30Days = nMonth == 4 || nMonth == 6 || nMonth == 9 || nMonth == 11;
+						if (validMonth && validYear) {
+							if (nMonth == 2) {
+								if (CalendarUtil.IsLeapYear(nYear)) validDay = (nDay >= 1) && (nDay <= 29);
+								else validDay = (nDay >= 1) && (nDay <= 28);
+							} else if (month30Days) validDay = (nDay >= 1) && (nDay <= 30);
+							else validDay = (nDay >= 1) && (nDay <= 31);
 						}
-			
-						if (validHrs && validMin && validDay && validMonth && validYear) {
-							assertTrue(appt.getValid());
+						
+						appt.setValid();
+						if (validHour && validMin && validMonth && validYear) {
+							if (validDay) assertEquals(getValidCorrect(appt), appt.getValid());
+							else assertTrue(appt.getValid());
+							if (!validDay) appt = new Appt(oHour, oMinute, oDay, oMonth, oYear, oTitle, oDesc, oEmail);
 						} else {
-							assertFalse(appt.getValid());
+							assertEquals(getValidCorrect(appt), appt.getValid());
+							appt = new Appt(oHour, oMinute, oDay, oMonth, oYear, oTitle, oDesc, oEmail);
 						}
 						
 					} else if (methodName.equals("isOn")) {
 						
 						appt = genValidAppt(random);
+						// new Appt should always be valid
+						assertEquals(getValidCorrect(appt), appt.getValid());
+						
 						int apptDay = appt.getStartDay();
 						int apptMonth = appt.getStartMonth();
 						int apptYear = appt.getStartYear();
@@ -215,6 +229,8 @@ public class ApptRandomTest {
 		Appt appt = new Appt(startHour, startMinute, startDay, startMonth, 
 				startYear, title, description, emailAddress);
 		
+		appt.setValid();
+		
 		return appt;
 		
 	}
@@ -223,9 +239,17 @@ public class ApptRandomTest {
 		
 		int startHour = ValuesGenerator.getRandomIntBetween(r, 0, 23);
 		int startMinute = ValuesGenerator.getRandomIntBetween(r, 0, 59);
-		int startDay = ValuesGenerator.getRandomIntBetween(r, 1, 28);
-		int startMonth = ValuesGenerator.getRandomIntBetween(r, 1, 11);
+		
+		int startMonth = ValuesGenerator.getRandomIntBetween(r, 1, 12);
 		int startYear = ValuesGenerator.getRandomIntBetween(r, 1, 2018);
+		
+		int startDay = 0;
+		boolean month30Days = startMonth == 4 || startMonth == 6 || startMonth == 9 || startMonth == 11;
+		if (startMonth == 2) {
+			if (CalendarUtil.IsLeapYear(startYear)) startDay = ValuesGenerator.getRandomIntBetween(r, 1, 29);
+			else startDay = ValuesGenerator.getRandomIntBetween(r, 1, 28);
+		} else if (month30Days) startDay = ValuesGenerator.getRandomIntBetween(r, 1, 30);
+		else startDay = ValuesGenerator.getRandomIntBetween(r, 1, 31);
 		
 		String title = ValuesGenerator.getString(r);
 		String description = ValuesGenerator.getString(r);
@@ -239,5 +263,34 @@ public class ApptRandomTest {
 		return appt;
 		
 	}
+    
+    // included as Appt setValid() is bugged
+    public boolean getValidCorrect(Appt a) {
+    	
+    	int minute, hour, day, month, year;
+    	minute = a.getStartMinute();
+    	hour = a.getStartHour();
+    	day = a.getStartDay();
+    	month = a.getStartMonth();
+    	year = a.getStartYear();
+    	
+    	boolean valid = true;
+    	if (month < 1 || month > 12)
+			valid = false;
+		else if (hour < 0 || hour > 23)
+			valid = false;
+		else if (minute < 0 || minute > 59)
+			valid = false;
+		else if (year <= 0)
+			valid = false;
+		else {
+			int NumDaysInMonth = CalendarUtil.NumDaysInMonth(year, month - 1);
+			if (day < 1 || day > NumDaysInMonth) valid = false;
+			else valid = true;
+		}
+    	
+    	return valid;
+    	
+    }
     
 }

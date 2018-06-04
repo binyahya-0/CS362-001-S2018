@@ -102,7 +102,10 @@ public class CalDayRandomTest {
 		@Override
 		public int compare(Appt a1, Appt a2) {
 			
-			Integer c1 = Integer.compare(a2.getStartHour(), a1.getStartHour());
+			// original test was against bugged code which inserted Appt objects in reverse order
+			// Integer c1 = Integer.compare(a2.getStartHour(), a1.getStartHour());
+			
+			Integer c1 = Integer.compare(a1.getStartHour(), a2.getStartHour());
 			return c1;
 			
 		}
